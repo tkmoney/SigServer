@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple PeerJS WebRTC Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+    video { width: 100%; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h1>PeerJS Chat Demo</h1>
+  <div><strong>Your ID:</strong> <span id="my-id"></span></div>
+  <div>
+    <input type="text" id="peer-id-input" placeholder="Enter peer ID to connect" />
+    <button id="connect-btn">Connect</button>
+  </div>
+  <div id="chat-window" style="border:1px solid #ccc; height:300px; overflow:auto; margin:10px 0; padding:10px;"></div>
+  <div>
+    <input type="text" id="msg-input" placeholder="Type a message" disabled />
+    <button id="send-btn" disabled>Send</button>
+  </div>
+
+  <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+  <script>
+    const peer = new Peer(undefined, {
+      host: window.location.hostname,
+      port: parseInt(window.location.port) || (window.location.protocol === 'https:' ? 443 : 80),
+      secure: window.location.protocol === 'https:',
+      path: '/peerjs'
+    });
+    const myIdSpan = document.getElementById('my-id');
+    const peerIdInput = document.getElementById('peer-id-input');
+    const connectBtn = document.getElementById('connect-btn');
+    const chatWindow = document.getElementById('chat-window');
+    const msgInput = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
+    let conn;
+    peer.on('open', id => {
+      myIdSpan.textContent = id;
+    });
+    peer.on('connection', connection => {
+      conn = connection;
+      conn.on('open', () => {
+        msgInput.disabled = false;
+        sendBtn.disabled = false;
+      });
+      conn.on('data', data => addMessage('Peer', data));
+    });
+    connectBtn.addEventListener('click', () => {
+      conn = peer.connect(peerIdInput.value);
+      conn.on('open', () => {
+        msgInput.disabled = false;
+        sendBtn.disabled = false;
+      });
+      conn.on('data', data => addMessage('Peer', data));
+    });
+    sendBtn.addEventListener('click', () => {
+      const msg = msgInput.value;
+      addMessage('You', msg);
+      conn.send(msg);
+      msgInput.value = '';
+    });
+    function addMessage(sender, text) {
+      const p = document.createElement('p');
+      p.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatWindow.appendChild(p);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+  </script>
+</body>
+</html>

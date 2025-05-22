@@ -1,0 +1,34 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+e2e-report.html
+coverage/
+.nyc_output/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.*
+
+# Editor folders and files
+.vscode/
+.idea/
+.DS_Store
+
+# SSL certificates (self-signed)
+cert/*.pem
+cert/*.key
+
+# Debug files
+npm-debug.log*
+yarn-debug.log*
